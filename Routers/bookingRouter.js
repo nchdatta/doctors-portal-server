@@ -33,4 +33,14 @@ bookingRouter.post('/', async (req, res) => {
     }
 })
 
+// Delete a booking
+bookingRouter.delete('/:id', async (req, res) => {
+    try {
+        const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
+        res.status(200).json({ success: true, deletedBooking });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on inserting a document.' });
+    }
+})
+
 module.exports = bookingRouter;
