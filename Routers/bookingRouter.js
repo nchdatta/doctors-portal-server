@@ -1,12 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bookingSchema = require('../Schemas/bookingSchema');
+const { verifyToken } = require('./userRouter');
 const bookingRouter = express.Router();
 const Booking = mongoose.model('Booking', bookingSchema);
 
 // Get all bookings 
-bookingRouter.get('/', async (req, res) => {
+bookingRouter.get('/', verifyToken, async (req, res) => {
     try {
+        // console.log(req.decoded)
         const query = { patientEmail: req.query.email };
         const projection = { __v: 0 };
         const bookings = await Booking.find(query, projection);
