@@ -1,6 +1,9 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const userSchema = require('../Schemas/userSchema');
 const userRouter = express.Router();
+const User = mongoose.model('User', userSchema);
 
 // Token verification middleware 
 function verifyToken(req, res, next) {
@@ -20,11 +23,6 @@ function verifyToken(req, res, next) {
     }
 }
 
-// Get all users 
-userRouter.get('/', (req, res) => {
-    res.json('All users');
-})
-
 // Send token to user 
 userRouter.post('/verify-token', (req, res) => {
     // User contains email address 
@@ -34,5 +32,68 @@ userRouter.post('/verify-token', (req, res) => {
     });
     res.json({ success: true, accessToken: token });
 })
+
+
+// Get all users 
+userRouter.get('/', verifyToken, async (req, res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json(users);
+    } catch (err) {
+        res.status(500).json({ message: 'Error occured on accessing users.' });
+    }
+})
+
+// User role checking whether admin or not
+userRouter.get('/role/:email', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email });
+        res.status(200).json({ role: user.role });
+    } catch (err) {
+        res.status(401).json({ message: 'Unauthorized access.' });
+    }
+})
+// Make a user an admin
+userRouter.put('/admin/:email', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.params.email });
+        if (user.role !== 'admin') {
+            const role = { $set: { role: 'admin' } }
+            const user = await User.updateOne({ email: req.params.email }, role);
+            res.status(200).json(user);
+        }
+    } catch (err) {
+        res.status(401).json({ message: 'Unauthorized access.' });
+    }
+})
+
+// Create a user 
+userRouter.put('/', async (req, res) => {
+    try {
+        const filter = { email: req.body.email };
+        const updateDoc = { $set: req.body };
+        const user = await User.updateOne(filter, updateDoc, { upsert: true });
+        res.status(200).json({ success: true, user });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on insert/updating user.' });
+    }
+})
+// Delete a user 
+userRouter.delete('/:id', verifyToken, async (req, res) => {
+    try {
+        const requester = req.decoded.email;
+        const reqUser = await User.findOne({ email: requester });
+        if (reqUser.role === 'admin') {
+            const user = await User.findByIdAndDelete(req.params.id);
+            res.status(200).json({ success: true, user });
+        } else {
+            res.status(401).json({ success: false, message: 'Unauthorized access.' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on insert/updating user.' });
+    }
+})
+
+
 
 module.exports = { userRouter, verifyToken };

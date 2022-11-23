@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const serviceRouter = require('./Routers/ServiceRouter');
 const bookingRouter = require('./Routers/bookingRouter');
 const { userRouter } = require('./Routers/userRouter');
+const doctorRouter = require('./Routers/doctorRouter');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT;
@@ -14,19 +15,21 @@ app.use(express.json());
 
 
 // Mongoose connection 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ern2bzt.mongodb.net/doctors-portal?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.zkbmivm.mongodb.net/?retryWrites=true&w=majority`;
 mongoose.connect(uri)
     .then(() => console.log('Connection successful.'))
     .catch(err => console.log(err.message));
 
 
 
-// User route 
-app.use('/user', userRouter);
 // Service route 
 app.use('/service', serviceRouter);
 // Booking route 
 app.use('/booking', bookingRouter);
+// User route 
+app.use('/user', userRouter);
+// Doctor route 
+app.use('/doctor', doctorRouter);
 
 
 
