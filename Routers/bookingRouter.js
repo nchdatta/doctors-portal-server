@@ -36,15 +36,15 @@ function sendBookingConfirmation(booking) {
         })
 }
 
+// SendGrid mailing end
 
 // Get all bookings 
 bookingRouter.get('/', verifyToken, async (req, res) => {
     try {
-        // console.log(req.decoded)
         const query = { patientEmail: req.query.email };
         const projection = { __v: 0 };
         const bookings = await Booking.find(query, projection);
-        res.status(200).json({ success: true, bookings });
+        res.json({ success: true, bookings });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on accessing bookings.' });
     }
@@ -57,12 +57,12 @@ bookingRouter.post('/', async (req, res) => {
         const query = { treatment: treatment, date: date, patientEmail: patientEmail };
         const exists = await Booking.findOne(query);
         if (!exists) {
-            const booking = new Booking(req.body);
-            const bookingCollection = await booking.save();
+            const bookingDoc = new Booking(req.body);
+            const booking = await bookingDoc.save();
             sendBookingConfirmation(req.body);
-            res.status(200).json({ success: true, booking: bookingCollection });
+            res.json({ success: true, booking });
         } else {
-            res.status(500).json({ success: false, message: 'Already booked for a treatment on' });
+            res.status(403).json({ success: false, message: 'Already booked for a treatment on' });
         }
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on inserting a document.' });
@@ -73,7 +73,7 @@ bookingRouter.post('/', async (req, res) => {
 bookingRouter.delete('/:id', async (req, res) => {
     try {
         const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, deletedBooking });
+        res.send({ success: true, deletedBooking });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on inserting a document.' });
     }

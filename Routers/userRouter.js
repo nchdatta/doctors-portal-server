@@ -60,7 +60,7 @@ userRouter.put('/admin/:email', verifyToken, async (req, res) => {
         if (user.role !== 'admin') {
             const role = { $set: { role: 'admin' } }
             const user = await User.updateOne({ email: req.params.email }, role);
-            res.status(200).json(user);
+            res.json(user);
         }
     } catch (err) {
         res.status(401).json({ message: 'Unauthorized access.' });
@@ -73,7 +73,7 @@ userRouter.put('/', async (req, res) => {
         const filter = { email: req.body.email };
         const updateDoc = { $set: req.body };
         const user = await User.updateOne(filter, updateDoc, { upsert: true });
-        res.status(200).json({ success: true, user });
+        res.json({ success: true, user });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on insert/updating user.' });
     }

@@ -9,7 +9,7 @@ serviceRouter.get('/', async (req, res) => {
     try {
         const query = {};
         const services = await Service.find(query);
-        res.status(200).json(services);
+        res.json(services);
     } catch (err) {
         res.status(500).json('Error fetching data');
     }

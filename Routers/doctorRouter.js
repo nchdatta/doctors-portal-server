@@ -11,7 +11,7 @@ doctorRouter.get('/', verifyToken, async (req, res) => {
     try {
         const query = {};
         const doctors = await Doctor.find(query);
-        res.status(200).json(doctors);
+        res.json(doctors);
     } catch (err) {
         res.status(500).json('Error fetching doctors data');
     }
