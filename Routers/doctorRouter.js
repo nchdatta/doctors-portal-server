@@ -25,9 +25,9 @@ doctorRouter.post('/', verifyToken, async (req, res) => {
         if (!exists) {
             const doc = new Doctor(req.body);
             const doctor = await doc.save();
-            res.status(200).json(doctor);
+            res.json(doctor);
         } else {
-            res.status(500).json('Doctor already registered.');
+            res.status(403).json('Doctor already registered.');
         }
     } catch (err) {
         res.status(500).json('Error fetching doctors data');
@@ -38,7 +38,7 @@ doctorRouter.delete('/:id', verifyToken, async (req, res) => {
     try {
         const query = { _id: req.params.id };
         const doctor = await Doctor.deleteOne(query);
-        res.status(200).json(doctor);
+        res.json(doctor);
     } catch (err) {
         res.status(500).json('Cannot remove the doctor.');
     }
