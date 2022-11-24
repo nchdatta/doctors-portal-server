@@ -7,7 +7,7 @@ const doctorRouter = express.Router();
 const Doctor = mongoose.model('Doctor', doctorSchema);
 
 // Get all doctors 
-doctorRouter.get('/', verifyToken, async (req, res) => {
+doctorRouter.get('/', async (req, res) => {
     try {
         const query = {};
         const doctors = await Doctor.find(query);

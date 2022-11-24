@@ -35,7 +35,6 @@ function sendBookingConfirmation(booking) {
             console.error(error)
         })
 }
-
 // SendGrid mailing end
 
 // Get all bookings 
@@ -44,9 +43,9 @@ bookingRouter.get('/', verifyToken, async (req, res) => {
         const query = { patientEmail: req.query.email };
         const projection = { __v: 0 };
         const bookings = await Booking.find(query, projection);
-        res.json({ success: true, bookings });
+        res.json(bookings);
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Error occured on accessing bookings.' });
+        res.status(500).json({ message: 'Error occured on accessing bookings.' });
     }
 })
 
