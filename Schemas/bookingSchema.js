@@ -5,6 +5,10 @@ const bookingSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    doctor: {
+        type: String,
+        required: true
+    },
     date: {
         type: Date,
         required: true
@@ -26,5 +30,5 @@ const bookingSchema = mongoose.Schema({
         required: true
     }
 });
-
-module.exports = bookingSchema;
+const Booking = mongoose.model('Booking', bookingSchema);
+module.exports = Booking;

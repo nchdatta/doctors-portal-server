@@ -18,4 +18,5 @@ const doctorSchema = mongoose.Schema({
     }
 });
 
-module.exports = doctorSchema;
+const Doctor = mongoose.model('Doctor', doctorSchema);
+module.exports = Doctor;

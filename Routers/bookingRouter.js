@@ -2,10 +2,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const sgMail = require('@sendgrid/mail');
-const bookingSchema = require('../Schemas/bookingSchema');
+const Booking = require('../Schemas/bookingSchema');
 const { verifyToken } = require('./userRouter');
+const User = require('../Schemas/userSchema');
 const bookingRouter = express.Router();
-const Booking = mongoose.model('Booking', bookingSchema);
 
 
 // SendGrid mailing 
@@ -37,12 +37,23 @@ function sendBookingConfirmation(booking) {
 }
 // SendGrid mailing end
 
-// Get all bookings 
+// Get all bookings for specific user
 bookingRouter.get('/', verifyToken, async (req, res) => {
     try {
-        const query = { patientEmail: req.query.email };
+        const user = await User.findOne({ email: req.decoded.email });
+        let query = { patientEmail: req.query.email, date: { $gt: Date.now() } };
         const projection = { __v: 0 };
         const bookings = await Booking.find(query, projection);
+        res.json(bookings);
+    } catch (err) {
+        res.status(500).json({ message: 'Error occured on accessing bookings.' });
+    }
+})
+// Get all bookings
+bookingRouter.get('/all', verifyToken, async (req, res) => {
+    try {
+        const projection = { __v: 0 };
+        const bookings = await Booking.find({}, projection);
         res.json(bookings);
     } catch (err) {
         res.status(500).json({ message: 'Error occured on accessing bookings.' });

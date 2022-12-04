@@ -1,10 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const doctorSchema = require('../Schemas/doctorSchema');
+const Doctor = require('../Schemas/doctorSchema');
 const { verifyToken } = require('./userRouter');
 const doctorRouter = express.Router();
-const Doctor = mongoose.model('Doctor', doctorSchema);
 
 // Get all doctors 
 doctorRouter.get('/', async (req, res) => {
@@ -41,6 +40,16 @@ doctorRouter.delete('/:id', verifyToken, async (req, res) => {
         res.json(doctor);
     } catch (err) {
         res.status(500).json('Cannot remove the doctor.');
+    }
+})
+// Get doctors speciality 
+doctorRouter.get('/speciality', async (req, res) => {
+    try {
+        const query = { speciality: req.query.speciality };
+        const specialities = await Doctor.find(query, { name: 1 });
+        res.json(specialities);
+    } catch (err) {
+        res.status(500).json('Error fetching doctors specialities');
     }
 })
 

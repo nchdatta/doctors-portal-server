@@ -1,9 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const userSchema = require('../Schemas/userSchema');
+const User = require('../Schemas/userSchema');
 const userRouter = express.Router();
-const User = mongoose.model('User', userSchema);
 
 // Token verification middleware 
 function verifyToken(req, res, next) {

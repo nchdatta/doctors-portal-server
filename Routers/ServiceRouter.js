@@ -1,8 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const serviceSchema = require('../Schemas/ServiceSchema');
+const Service = require('../Schemas/ServiceSchema');
 const serviceRouter = express.Router();
-const Service = mongoose.model('Service', serviceSchema);
 
 // Get all services 
 serviceRouter.get('/', async (req, res) => {
