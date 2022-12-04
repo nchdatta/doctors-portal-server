@@ -85,7 +85,28 @@ bookingRouter.delete('/:id', async (req, res) => {
         const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
         res.send({ success: true, deletedBooking });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Error occured on inserting a document.' });
+        res.status(500).json({ success: false, message: 'Error occured on deleting a booking' });
+    }
+})
+// Confirm a booking [Doctors role]
+bookingRouter.put('/confirm/:id', async (req, res) => {
+    try {
+        const confirmBooking = await Booking.findByIdAndUpdate(req.params.id, { $set: { status: 'Confirm' } });
+        res.send({ success: true, confirmBooking });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on updating a booking.' });
+    }
+})
+
+
+// Get all bookings for a specific doctor
+bookingRouter.get('/appointments', verifyToken, async (req, res) => {
+    try {
+        const projection = { __v: 0 };
+        const appointments = await Booking.find({ doctor: req.query.doctor }, projection);
+        res.json(appointments);
+    } catch (err) {
+        res.status(500).json({ message: 'Error occured on accessing appointments.' });
     }
 })
 

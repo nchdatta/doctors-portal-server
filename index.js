@@ -15,7 +15,7 @@ app.use(express.json());
 
 
 // Mongoose connection 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.zkbmivm.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster1.zkbmivm.mongodb.net/doctors-portal?retryWrites=true&w=majority`;
 mongoose.connect(uri)
     .then(() => console.log('Connection successful.'))
     .catch(err => console.log(err.message));

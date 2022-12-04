@@ -28,6 +28,12 @@ const bookingSchema = mongoose.Schema({
     patientEmail: {
         type: String,
         required: true
+    },
+    status: {
+        type: String,
+        required: true,
+        enum: ['Pending', 'Confirm'],
+        default: 'Pending'
     }
 });
 const Booking = mongoose.model('Booking', bookingSchema);

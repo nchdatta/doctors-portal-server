@@ -62,7 +62,22 @@ userRouter.put('/admin/:email', verifyToken, async (req, res) => {
             res.json(user);
         }
     } catch (err) {
-        res.status(401).json({ message: 'Unauthorized access.' });
+        res.status(500).json("Error occured on making user an admin.");
+    }
+})
+// Make a user a Doctor
+userRouter.put('/doctor', verifyToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ email: req.decoded.email });
+        if (user.role === 'admin') {
+            const role = { $set: { role: 'doctor' } }
+            const user = await User.updateOne({ email: req.query.doctor }, role);
+            res.json(user);
+        } else {
+            res.status(401).json("Unauthorized access.");
+        }
+    } catch (err) {
+        res.status(500).json("Error occured on making user a doctor.");
     }
 })
 
