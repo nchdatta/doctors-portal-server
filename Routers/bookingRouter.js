@@ -11,19 +11,78 @@ const bookingRouter = express.Router();
 // SendGrid mailing 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-function sendBookingConfirmation(booking) {
-    const { treatment, date, patientEmail } = booking;
+function sendBookingPending(booking) {
+    const { treatment, date, patientEmail, patientName } = booking;
     const msg = {
         to: patientEmail,
         from: 'nayanchdatta11@gmail.com',
-        subject: `Booking confirm for ${treatment} on ${date}`,
-        text: `Booking confirm for ${treatment} on ${date}`,
+        subject: `Booking Pending for ${treatment}`,
+        text: `Booking Pending for ${treatment}`,
         html: `
         <div>
-            <h4>Hello</h4>
-            <h2>Booking Confirmation for ${treatment}</h2>
-            <h4>Confirm on ${date}</h4>
-            <p>Please visit our site for more information.</p>
+            <h4>Hello, ${patientName}</h4>
+            <h2>Booking pending for ${treatment} on ${date}</h2>
+            <p>Once the doctor confrim your appointment, you'll get an email confirmation.</p>
+            
+            <br/><br/>
+            <h3>Doctors Portal</h3>
+            <p>Visit our site for more information.</p>
+        </div>
+        `,
+    };
+
+    sgMail
+        .send(msg)
+        .then()
+        .catch((error) => {
+            console.error(error)
+        })
+}
+function sendBookingConfirmation(booking) {
+    const { treatment, doctor, date, slot, patientEmail, patientName } = booking;
+    const msg = {
+        to: patientEmail,
+        from: 'nayanchdatta11@gmail.com',
+        subject: `Appointment confirmed for ${treatment}`,
+        text: `Appointment confirmed for ${treatment}`,
+        html: `
+        <div>
+            <h4>Hello, ${patientName}</h4>
+            <h2>Appointment Confirmation for ${treatment}</h2>
+            <p>Appointment Date: ${date}</p>
+            <p>Appointment Slot: ${slot}</p>
+            <p>Appointment Doctor: ${doctor}</p>
+            <p>Please be present on exact date and time with previous health records.</p>
+
+            <br/><br/>
+            <h3>Doctors Portal</h3>
+            <p>Visit our site for more information.</p>
+        </div>
+        `,
+    };
+
+    sgMail
+        .send(msg)
+        .then()
+        .catch((error) => {
+            console.error(error)
+        })
+}
+function sendBookingCancel(booking) {
+    const { treatment, date, patientEmail, patientName } = booking;
+    const msg = {
+        to: patientEmail,
+        from: 'nayanchdatta11@gmail.com',
+        subject: `Appointment Cancelled for ${treatment}`,
+        text: `Appointment Cancelled for ${treatment}`,
+        html: `
+        <div>
+            <h4>Hello, ${patientName}</h4>
+            <h2>Appointment Cancelled for ${treatment} on ${date}</h2>
+
+            <br/><br/>
+            <h3>Doctors Portal</h3>
+            <p>Visit our site for more information.</p>
         </div>
         `,
     };
@@ -69,7 +128,7 @@ bookingRouter.post('/', async (req, res) => {
         if (!exists) {
             const bookingDoc = new Booking(req.body);
             const booking = await bookingDoc.save();
-            sendBookingConfirmation(req.body);
+            sendBookingPending(req.body);
             res.json({ success: true, booking });
         } else {
             res.status(403).json({ success: false, message: 'Already booked for a treatment on' });
@@ -79,10 +138,12 @@ bookingRouter.post('/', async (req, res) => {
     }
 })
 
-// Delete a booking
+// Cancel a booking
 bookingRouter.delete('/:id', async (req, res) => {
     try {
+        const booking = await Booking.findById(req.params.id);
         const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
+        sendBookingCancel(booking);
         res.send({ success: true, deletedBooking });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on deleting a booking' });
@@ -91,7 +152,8 @@ bookingRouter.delete('/:id', async (req, res) => {
 // Confirm a booking [Doctors role]
 bookingRouter.put('/confirm/:id', async (req, res) => {
     try {
-        const confirmBooking = await Booking.findByIdAndUpdate(req.params.id, { $set: { status: 'Confirm' } });
+        const confirmBooking = await Booking.findByIdAndUpdate(req.params.id, { $set: { status: 'Confirm' } }, { new: true });
+        sendBookingConfirmation(confirmBooking);
         res.send({ success: true, confirmBooking });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on updating a booking.' });
