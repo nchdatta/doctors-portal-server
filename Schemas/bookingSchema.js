@@ -34,6 +34,12 @@ const bookingSchema = mongoose.Schema({
         required: true,
         enum: ['Pending', 'Confirm'],
         default: 'Pending'
+    },
+    payment: {
+        type: String,
+        required: true,
+        enum: ['Paid', 'Unpaid'],
+        default: 'Unpaid'
     }
 });
 const Booking = mongoose.model('Booking', bookingSchema);

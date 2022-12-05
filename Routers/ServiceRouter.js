@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const Service = require('../Schemas/ServiceSchema');
 const serviceRouter = express.Router();
 

@@ -1,6 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
-
 const Doctor = require('../Schemas/doctorSchema');
 const { verifyToken } = require('./userRouter');
 const doctorRouter = express.Router();

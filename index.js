@@ -34,7 +34,6 @@ app.use('/doctor', doctorRouter);
 
 
 
-
 app.get('/', (req, res) => {
     res.send("Home route!");
 })

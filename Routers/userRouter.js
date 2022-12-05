@@ -1,6 +1,5 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 const User = require('../Schemas/userSchema');
 const userRouter = express.Router();
 
@@ -22,7 +21,7 @@ function verifyToken(req, res, next) {
     }
 }
 
-// Send token to user 
+// Send jwt token to user 
 userRouter.post('/verify-token', (req, res) => {
     // User contains email address 
     const user = req.body;
