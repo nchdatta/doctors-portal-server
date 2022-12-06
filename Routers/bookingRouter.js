@@ -2,16 +2,15 @@ const express = require('express');
 require('dotenv').config();
 const Booking = require('../Schemas/bookingSchema');
 const { verifyToken } = require('./userRouter');
-const User = require('../Schemas/userSchema');
 const { sendBookingPending, sendBookingCancel, sendBookingConfirmation } = require('../sendGrid');
+const BookingHistory = require('../Schemas/bHistorySchema');
 const bookingRouter = express.Router();
 
 
-// Get all bookings for specific user
+// Get all bookings for a specific user
 bookingRouter.get('/', verifyToken, async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.decoded.email });
-        let query = { patientEmail: req.query.email, date: { $gt: Date.now() } };
+        const query = { patientEmail: req.query.email, date: { $gt: Date.now() } };
         const projection = { __v: 0 };
         const bookings = await Booking.find(query, projection);
         res.json(bookings);
@@ -19,6 +18,7 @@ bookingRouter.get('/', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Error occured on accessing bookings.' });
     }
 })
+
 // Get all bookings
 bookingRouter.get('/all', verifyToken, async (req, res) => {
     try {
@@ -33,8 +33,8 @@ bookingRouter.get('/all', verifyToken, async (req, res) => {
 // Booking api for POST 
 bookingRouter.post('/', async (req, res) => {
     try {
-        const { treatment, date, patientEmail } = req.body;
-        const query = { treatment: treatment, date: date, patientEmail: patientEmail };
+        const { treatment, patientEmail } = req.body;
+        const query = { treatment, patientEmail };
         const exists = await Booking.findOne(query);
         if (!exists) {
             const bookingDoc = new Booking(req.body);
@@ -42,24 +42,23 @@ bookingRouter.post('/', async (req, res) => {
             sendBookingPending(req.body);
             res.json({ success: true, booking });
         } else {
-            res.status(403).json({ success: false, message: 'Already booked for a treatment on' });
+            res.status(403).json({ success: false, message: `Already booked for a treatment on ${exists.date.toString().slice(0, 16)}` });
         }
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on inserting a document.' });
     }
 })
-
 // Cancel a booking
 bookingRouter.delete('/:id', async (req, res) => {
     try {
-        const booking = await Booking.findById(req.params.id);
-        const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
-        sendBookingCancel(booking);
+        const deletedBooking = await Booking.findByIdAndDelete(req.params.id, { new: true });
+        sendBookingCancel(deletedBooking);
         res.send({ success: true, deletedBooking });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Error occured on deleting a booking' });
     }
 })
+
 // Payment for a booking
 bookingRouter.put('/:id', async (req, res) => {
     try {
@@ -81,7 +80,6 @@ bookingRouter.put('/confirm/:id', async (req, res) => {
     }
 })
 
-
 // Get all bookings for a specific doctor
 bookingRouter.get('/appointments', verifyToken, async (req, res) => {
     try {
@@ -92,5 +90,29 @@ bookingRouter.get('/appointments', verifyToken, async (req, res) => {
         res.status(500).json({ message: 'Error occured on accessing appointments.' });
     }
 })
+
+// BookingHistory collection
+// Get all bookings history for a specific user
+bookingRouter.get('/history', verifyToken, async (req, res) => {
+    try {
+        let query = { patientEmail: req.query.email };
+        const bHistory = await BookingHistory.find(query);
+        res.json(bHistory);
+    } catch (err) {
+        res.status(500).json({ message: 'Error occured on accessing booking history.' });
+    }
+})
+// Insert a booking into BookingHistory collection
+bookingRouter.post('/history', async (req, res) => {
+    try {
+        const bDoc = new BookingHistory(req.body);
+        await bDoc.save();
+        res.send({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on inserting a booking into BookingHistory' });
+    }
+})
+
+
 
 module.exports = bookingRouter;
