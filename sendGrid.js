@@ -3,6 +3,7 @@ const sgMail = require('@sendgrid/mail');
 // SendGrid mailing 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+
 function sendBookingPending(booking) {
     const { treatment, date, patientEmail, patientName } = booking;
     const msg = {

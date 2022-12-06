@@ -55,8 +55,8 @@ userRouter.get('/role/:email', verifyToken, async (req, res) => {
 userRouter.put('/admin/:email', verifyToken, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.params.email });
-        if (user.role !== 'admin') {
-            const role = { $set: { role: 'admin' } }
+        if (user.role !== 'Admin') {
+            const role = { $set: { role: 'Admin' } }
             const user = await User.updateOne({ email: req.params.email }, role);
             res.json(user);
         }
@@ -68,8 +68,8 @@ userRouter.put('/admin/:email', verifyToken, async (req, res) => {
 userRouter.put('/doctor', verifyToken, async (req, res) => {
     try {
         const user = await User.findOne({ email: req.decoded.email });
-        if (user.role === 'admin') {
-            const role = { $set: { role: 'doctor' } }
+        if (user.role === 'Admin') {
+            const role = { $set: { role: 'Doctor' } }
             const user = await User.updateOne({ email: req.query.doctor }, role);
             res.json(user);
         } else {
@@ -84,7 +84,7 @@ userRouter.put('/doctor', verifyToken, async (req, res) => {
 userRouter.put('/', async (req, res) => {
     try {
         const filter = { email: req.body.email };
-        const updateDoc = { $set: req.body };
+        const updateDoc = { $set: { email: req.body.email } };
         const user = await User.updateOne(filter, updateDoc, { upsert: true });
         res.json({ success: true, user });
     } catch (err) {
@@ -96,7 +96,7 @@ userRouter.delete('/:id', verifyToken, async (req, res) => {
     try {
         const requester = req.decoded.email;
         const reqUser = await User.findOne({ email: requester });
-        if (reqUser.role === 'admin') {
+        if (reqUser.role === 'Admin') {
             const user = await User.findByIdAndDelete(req.params.id);
             res.status(200).json({ success: true, user });
         } else {

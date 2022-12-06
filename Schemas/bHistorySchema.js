@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 const bHistorySchema = mongoose.Schema({
+    patientEmail: {
+        type: String,
+        required: true
+    },
     treatment: {
         type: String,
         required: true

@@ -95,7 +95,7 @@ bookingRouter.get('/appointments', verifyToken, async (req, res) => {
 // Get all bookings history for a specific user
 bookingRouter.get('/history', verifyToken, async (req, res) => {
     try {
-        let query = { patientEmail: req.query.email };
+        const query = { patientEmail: req.query.email };
         const bHistory = await BookingHistory.find(query);
         res.json(bHistory);
     } catch (err) {
