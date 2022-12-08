@@ -91,6 +91,7 @@ userRouter.put('/', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error occured on insert/updating user.' });
     }
 })
+
 // Delete a user 
 userRouter.delete('/:id', verifyToken, async (req, res) => {
     try {
@@ -103,9 +104,26 @@ userRouter.delete('/:id', verifyToken, async (req, res) => {
             res.status(401).json({ success: false, message: 'Unauthorized access.' });
         }
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Error occured on insert/updating user.' });
+        res.status(500).json({ success: false, message: 'Error occured on updating user.' });
     }
 })
+// Delete account 
+userRouter.delete('/delete/:email', verifyToken, async (req, res) => {
+    try {
+        const requester = req.decoded.email;
+        const email = req.params.email;
+        if (requester === email) {
+            await User.findOneAndDelete({ email }, { new: true });
+            res.json({ success: true, message: 'Account deleted successfuly.' })
+        } else {
+            res.status(401).json({ success: false, message: 'Unauthorized access.' });
+        }
+
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error occured on updating user.' });
+    }
+})
+
 
 
 
