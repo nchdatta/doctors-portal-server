@@ -19,6 +19,16 @@ bookingRouter.get('/', verifyToken, async (req, res) => {
     }
 })
 
+// Get a booking 
+bookingRouter.get('/booking/:id', verifyToken, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id, { treatment: 1, patientEmail: 1, patientName: 1 }, { new: true });
+        res.json(booking);
+    } catch (err) {
+        res.status(500).json({ message: 'Error occured on accessing a booking.' });
+    }
+})
+
 // Get all bookings
 bookingRouter.get('/all', verifyToken, async (req, res) => {
     try {

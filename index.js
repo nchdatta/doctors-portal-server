@@ -5,6 +5,7 @@ const serviceRouter = require('./Routers/ServiceRouter');
 const bookingRouter = require('./Routers/bookingRouter');
 const { userRouter } = require('./Routers/userRouter');
 const doctorRouter = require('./Routers/doctorRouter');
+const stripeRouter = require('./Routers/stripeRouter');
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT;
@@ -30,6 +31,8 @@ app.use('/booking', bookingRouter);
 app.use('/user', userRouter);
 // Doctor route 
 app.use('/doctor', doctorRouter);
+// Stripe Payment route 
+app.use('/stripe', stripeRouter);
 
 
 
